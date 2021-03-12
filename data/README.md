@@ -1,6 +1,6 @@
 # Data
 
-The file provided here contains Twitter ids, from which you can download the original data directly from Twitter using the code provided [here](./twitter_migatittudes/methods). Alternatively you can obtain the original tweets by use the Twitter [Hydrator](https://github.com/DocNow/hydrator), which takes the tweet_id and downloads the corresponding tweet, if it is available.
+The file provided here contains Twitter ids, from which you can download the original data directly from Twitter using the code provided [here](./methods). Alternatively you can obtain the original tweets by use the Twitter [Hydrator](https://github.com/DocNow/hydrator), which takes the tweet_id and downloads the corresponding tweet, if it is available.
 
 ## Data source
 
