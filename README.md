@@ -31,8 +31,8 @@ If you use the code and/or data in this repository, we would appreciate if you c
           Graells-Garrido, Eduardo and
           Rango, Marzia and
           Sievers, Niklas},
-  journal={Journal of Urban Economics},
-  year={\emph{forthcoming}},
+  journal={arXiv preprint arXiv:1911.03795},
+  year={2021},
 }
 ```
 
