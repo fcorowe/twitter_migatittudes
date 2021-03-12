@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.Drat
+.tmp
+.DS_Store
+Log.docx
+*.json
+*.Rproj
+*.csv
