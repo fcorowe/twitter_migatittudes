@@ -23,6 +23,7 @@ To illustrate how immigration sentiment can be measured and monitored using Twit
 
 If you use the code and/or data in this repository, we would appreciate if you could cite the pre-print paper as:
 
+```
 @article{rowe_et_al2021iom,
   title={Using Twitter Data to Monitor Immigration Sentiment},
   author={Rowe, Francisco and 
@@ -33,6 +34,7 @@ If you use the code and/or data in this repository, we would appreciate if you c
   journal={Journal of Urban Economics},
   year={\emph{forthcoming}},
 }
+```
 
 ## Data
 
