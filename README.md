@@ -1,6 +1,6 @@
 # Using Twitter Data to Monitor Immigration Sentiment
 
-[Francisco Rowe](http://www.franciscorowe.com) [[`@fcorowe`](http://twitter.com/fcorowe)]<sup>1</sup>, Michael Mahony<sup>1</sup>, Eduardo Graells[[`@carnby`](https://twitter.com/carnby)]<sup>2</sup>, Marzia Rango [[`@MarziaRango`](https://twitter.com/MarziaRango)]<sup>3</sup>, Niklas Sievers [[`@niklas_sievers
+[Francisco Rowe](http://www.franciscorowe.com) [[`@fcorowe`](http://twitter.com/fcorowe)]<sup>1</sup>, Michael Mahony<sup>1</sup>, Eduardo Graells-Garrido(http://datagramas.cl) [[`@carnby`](https://twitter.com/carnby)]<sup>2</sup>, Marzia Rango [[`@MarziaRango`](https://twitter.com/MarziaRango)]<sup>3</sup>, Niklas Sievers [[`@niklas_sievers
 `](https://twitter.com/niklas_sievers)]<sup>3</sup>
 
 <sup>1</sup> *Geographic Data Science Lab, University of Liverpool, Liverpool, United Kingdom*
