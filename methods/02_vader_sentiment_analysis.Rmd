@@ -44,10 +44,28 @@ showtext_auto()
 # 2. Data Wrangling
 ```{r}
 # Read in tweets
-tweets <- read_csv("../data/uk_tweets_01122019_01052020_VADER_removed_dpl_RT_and_status_id_only.csv")
+tweets <- read_csv("../data/uk_tweets_01122019_01052020_VADER.csv")
 glimpse(tweets)
 ```
+The code chunk above reads a data frame with following structure:
 
+```
+Rows: 108,114
+Columns: 13
+$ X1             <dbl> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, …
+$ created_at     <dttm> 2019-12-01 00:09:13, 2019-12-01 01:06:54, 2019-12-01 01:10:31…
+$ status_id      <dbl> 1.200930e+18, 1.200944e+18, 1.200945e+18, 1.200946e+18, 1.2009…
+$ username       <chr> "Computer_999", "Bethalyza", "CGH54", "sunnydalejane", "Katcam…
+$ user_id        <dbl> 4.243425e+08, 3.694850e+08, 3.847631e+08, 7.818855e+17, 4.9541…
+$ text           <chr> "RT @xxx: If #NigelFarage wants to leave the EU, this …
+$ country        <chr> "United Kingdom", "United Kingdom", "United Kingdom", NA, "Uni…
+$ region         <chr> "England", "England", "Wales", NA, NA, "England", "England", N…
+$ retweeted_user <chr> "{'user_id': '2196203149', 'username': 'xxx'}", NA, NA…
+$ retweet_count  <dbl> 34, 0, 0, 1, 3, 868, 0, 0, 149, 237, 853, 9, 16, 4, 0, 0, 131,…
+$ search_type    <chr> "hashtags", "hashtags", "hashtags", "hashtags", "hashtags", "h…
+$ quoted_tweet   <lgl> FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,…
+$ VADER_text     <chr> "RT @anonymous If #NigelFarage wants to leave the EU, this app…
+```
 
 Formatting dates
 ```{r}
@@ -145,20 +163,9 @@ wdf <- apply_weightings(df)
 sum(df$retweet_count)
 ```
 
-## 3.3 Numbers by day
-```{r}
-df %>% group_by(date) %>% 
-  dplyr::summarise(sum = retweet_count) %>%
-  ggplot(., aes(x = date, y = sum)) +
-  #geom_line() +
-  geom_smooth(method = "loess", se = FALSE, size=2, span = 0.15, color="#238A8DFF") +
-  theme_tufte()
-```
+## 3.3. Distribution Analysis: Creating Fig.1
 
-
-## 3.3. Distribution
-
-Raw SS
+Histogram
 ```{r}
 p1 <- ggplot(data=df) +
   geom_histogram(aes(x = over_tweet_sent, 
@@ -174,22 +181,7 @@ p1 <- ggplot(data=df) +
        y = "Density")
 ```
 
-Checking weights have been applied correctly
-```{r}
-ggplot(data=wdf) +
-  geom_histogram(aes(x = over_tweet_sent), 
-                 binwidth = 0.05,
-                 fill = "#440154FF",
-                 alpha = 1) +
-  #facet_grid(. ~ cntry_id) +
-  theme_tufte() + 
-  theme(text = element_text(family="robotocondensed",
-                            size = 20)) +
-  labs(x= "Tweet sentiment score",
-       y = "Density")
-```
-
-
+Cumulative distribution
 ```{r}
 p2 <- ggplot(wdf, aes(over_tweet_sent)) + 
   stat_ecdf(geom = "step",
@@ -201,53 +193,16 @@ p2 <- ggplot(wdf, aes(over_tweet_sent)) +
   labs(x= "Tweet sentiment score",
        y = "Cumulative density")
 ```
-
+Saving Fig.1
 ```{r}
 png("../outputs/oss_dist_uk.png", units="in", width=10, height=7, res=300)
 p1 + p2 + plot_layout(widths = c(1, 1))
 dev.off()
 ```
 
+## 3.4. Temporal evolution: Creating Fig.2
 
-```{r}
-ggplot(data=df) +
-  geom_density(aes(x = over_tweet_sent), 
-               fill = "blue",
-               alpha = 0.6) +
-  #facet_grid(. ~ cntry_id) +
-  theme_tufte()
-```
-
-
-Examining outliers
-> Lots of the very high positive SSs involve tweets on having got Brexit done
-
-```{r}
-outlier <- df %>% dplyr::filter(over_tweet_sent > .55 | over_tweet_sent < -.55)
-outlier %>% dplyr::select(over_tweet_sent, text) %>% head()
-```
-
-Examining ~ 0 SSs
-
-Shall small SSs be categorised as 0?
-```{r}
-near_zero <- df %>% dplyr::filter(over_tweet_sent <= .05 & over_tweet_sent >= -.05)
-near_zero %>% dplyr::select(over_tweet_sent, text) %>% head()
-```
-
-Raw SS removing neutral SSs (ie 0s)
-```{r}
-df %>% dplyr::filter(pn_sent | 0) %>% 
-  ggplot() +
-  geom_density(aes(x = over_tweet_sent,
-                   weight = retweet_count/sum(retweet_count)),
-               fill = "blue", 
-               alpha = 0.6) +
-  #facet_grid(. ~ cntry_id) +
-  theme_tufte()
-```
-
-## 3.4. Frequencies
+### Creating Fig.2b
 
 Frequency Neu (0), Pos (1), Neg (2)
 ```{r}
@@ -265,7 +220,6 @@ tb_counts <- df %>% dplyr::count(date, pn_sent, wt = retweet_count) %>%
   spread(pn_sent, n)
 tb_counts
 ```
-
 
 Daily Share Neu (0), Pos (1), Neg (2)
 ```{r}
@@ -295,13 +249,9 @@ pcom <- ggplot(tab, aes(fill = stance, y=percent, x=day)) +
     #scale_fill_viridis_d()
 ```
 
-
-
-## 3.5 Tweet level analysis
+### Creating Fig.2a
 
 SS Daily evolution - smoothed conditional mean
-> Weighted data using `geom_smooth`: https://ggplot2-book.org/statistical-summaries.html
-> ggplot annotation: https://ggplot2-book.org/annotations.html
 
 ```{r}
 p1 <- ggplot(df, aes(x = hour, y = over_tweet_sent)) +
@@ -314,94 +264,17 @@ p1 <- ggplot(df, aes(x = hour, y = over_tweet_sent)) +
                             size = 20)) +
   labs(x= "Day",
        y = "Tweet sentiment score")  +
-   ggtitle('a.') #+
- # scale_y_continuous(limits = c(-.5, .5))
+   ggtitle('a.') +
+  scale_y_continuous(limits = c(-1, 1))
+```
+Saving Fig.2
+```{r}
 png("../outputs/oss_points_uk.png", units="in", width=10, height=10, res=300)
 p1 / pcom + plot_layout(widths = c(1, 1))
 dev.off()
 ```
 
-Daily mean SS
-```{r}
-df %>% 
-  group_by(date) %>% 
-  dplyr::summarize(
-    wave_sent = weighted.mean(over_tweet_sent, retweet_count)) %>% 
-  ggplot(aes(x = date, y = wave_sent)) +
-  geom_point(colour = "gray", alpha = 0.5) + 
-  geom_line(size=2, color="#238A8DFF") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red", size = .3) +
-#  facet_wrap(~ cntry_id, nrow = 5) + 
-  theme_tufte() + 
-  labs(x= "Day",
-       y = "Tweet sentiment score")
-```
-
-
-Daily median SS
-```{r}
-df %>% group_by(date) %>% 
-  dplyr::summarise(median_day_sent = matrixStats::weightedMedian(over_tweet_sent, retweet_count)) %>% 
-  ggplot(aes(x = date, y = median_day_sent)) +
-  geom_point(colour = "gray", alpha = 0.5) + 
-  geom_line(size=2, color="#238A8DFF") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red", size = .3) +
-#  facet_wrap(~ cntry_id, nrow = 5) + 
-  theme_tufte() + 
-  labs(x= "Day",
-       y = "Tweet sentiment score")
-```
-
-## 3.7 Group analysis: Positive, Neutral & Negative
-
- Positive and negative sentiment scores
-```{r}
-p <- df %>% dplyr::filter(over_tweet_sent < -.05 | over_tweet_sent > .05) %>% 
-  ggplot(aes(x = hour, y = over_tweet_sent, colour = as.factor(pn_sent))) +
-  geom_hline(yintercept = 0, linetype="dashed", color = "red", size = .3) +
-  geom_point(colour = "gray", alpha = 0.3, size = 1, shape=".") 
-
-p <- p +  geom_smooth(aes(weight = retweet_count), method = "loess", se = TRUE, size=2, span = 0.3) +
-  scale_color_manual(name = "Sentiment score", 
-                     labels = c("Positive", "Negative"), 
-                     values = c('darkblue', 'darkred')) +
-#  facet_wrap(~ cntry_id, nrow = 5) + 
-  theme_tufte() + 
-   theme(text = element_text(family="robotocondensed",
-                            size = 20)) +
-  theme(legend.position = "bottom") +
-  labs(x= "Day",
-       y = "Tweet sentiment score") +
-   ggtitle('b.') #+
-  #scale_y_continuous(limits = c(-2, 2))
-png("../outputs/posnegss_points_uk.png",units="in", width=8.5, height=10, res=300)
-p1/ p + plot_layout(widths = c(1, 1))
-dev.off()
-```
-
-5 categories Neu (0), S Neg (1), Neg (2), Pos (3), S Pos (4)
-```{r}
-p2 <- df %>% dplyr::filter(over_tweet_sent < -.05 | over_tweet_sent > .05) %>% 
-  ggplot(aes(x = hour, y = over_tweet_sent, colour = as.factor(pn5c_sent))) +
-  geom_hline(yintercept = 0, linetype="dashed", color = "red", size = .3) +
-  geom_point(colour = "gray", alpha = 0.3, size = 1, shape=".") + 
-  geom_smooth(aes(weight = retweet_count), method = "loess", se = TRUE, size=2, span = 0.3) +
-  scale_color_manual(name = "Sentiment score", 
-                     labels = c("Strongly Negative", "Negative", "Positive", "Strongly Positive"), 
-                     values = c("darkred", "#d7191c", "#2c7bb6", "darkblue")) +
-#  facet_wrap(~ cntry_id, nrow = 5) + 
-  theme_tufte() + 
-  theme(text = element_text(size = 20)) +
-  theme(legend.position = "bottom") +
-  labs(x= "Day",
-       y = "Tweet sentiment score") #+
-  #scale_y_continuous(limits = c(-2, 2))
-png("../outputs/posneg5ss_points_uk.png",units="in", width=9, height=10, res=300)
-p1 / p2
-dev.off()
-```
-
-## 3.8 Word Cloud Analysis
+## 3.5 Word Cloud Analysis: Creating Fig.3
 
 Joining data to add lexicon like text
 ```{r}
@@ -438,79 +311,7 @@ filter_date <- function(x,y,z) {
 
 Breakdown word clouds into positive and negative
 
-So the first value y is the minimum number of times a word must occur across all tweets to be considered. The second z is the max number of words to be included in the word cloud
-
-January 15-16th 2020 
-> Tweet containing most freq word:
-NEGATIVE
-* Sick:  Illegal alien Reeaz Khan was arrested for assaulting his grandfather  ICE tried to deport him  NYPD released him onto the streets of Sanctuary City New York instead  6 weeks later—he's being charged with raping &amp; killing a 92 year old woman  How do Democrats defend this?
-* Today I visited 2 Atlanta safe havens for human trafficking survivors.  The warrior women I met today represent resilience and strength on a level few of us will ever know.  The Trump Administration sees and hears you. We are committed to ending the evil of modern slavery. http://url_removed
-* China poses an “existential threat” to the international human rights system, according to a new report released today by Human Rights Watch (@anonymous after the organization’s executive director was denied entry to Hong Kong at the weekend. http://url_removed
-* Priti Patel gets it  "The people expect us to do what we say, from crime to immigration, to leaving the EU. We are ready to listen and do what they want.  It's called democracy.  They are our masters and we are their servants  Our job is to deliver on their priorities." http://url_removed
-POSITIVE
-*	BREAKING   Leave Means Leave have been given approval to hold an event in Parliament Square on 31st January. Great news!  It is a big moment in the history of this nation to celebrate.
-* Like me, you may have been wondering about the happy EU millennials in this video who smilingly welcome the @anonymous benign new immigration regime. They really get around these EU nationals. Here they are advertising a bank in Australia: http://url_removed (https://twitter.com/BorderIrish/status/1078352682216235008?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1078352682216235008%7Ctwgr%5E&ref_url=https%3A%2F%2Feuropestreet.news%2Fcontroversy-mounts-over-uk-settled-status-residence-scheme-to-open-to-all-eu-nationals-on-january-21%2F)
-* CNN is now doing play-by-play analysis of Bernie &amp; Warren talking after the debate.  They did not bring up gun control, LGBTQIA+ rights, abortion, immigration, wages, police accountability/criminal justice or the Supreme Court among many, many other issues during the debate.
-
-January 22-23th 2020 
-> Tweet containing most freq word:
-NEGATIVE
-* BREAKING: The State Department will no longer issue visas to pregnant immigrants traveling to the United States to give birth and abuse our birthright citizenship laws.
-* Immigrant kids were tied to chairs with bags over their head as punishment for misbehaving in custody. Some peed themselves while tied to the chairs.   This is how our country treats immigrant children.  http://url_removed
-* BREAKING: WE JUST EXPOSED ILLEGAL VOTING IN ARIZONA.  AZ Blue 2020, a Democratic action group, was caught by our undercover journalist @anonymous SHOWING ‘illegals’ how to vote!  THIS NEEDS TO BE SHARED AT ALL LEVELS OF MEDIA!  FULL VIDEO HERE: http://url_removedhttp://url_rem
-POSITIVE
-* Met #brexit lady again today. She's peed off. Had to apply for residency, register for tax, matriculate cars, join healthcare system, swap driving licence etc, all at a cost. Not what she voted for, she just wanted to stop EU immigration to UK, not stop her living in Portugal.
-* I like to think (imagine, hope) that I can comprehend why people take a wide range of political positions, left and right; but I cannot get my head around this. ‘Unaccompanied child refugees being able to join their families ...’ Isn’t that just obvious? Am I missing something? http://url_removed
-* After GE2019, Boris Johnson said he wanted to be “friends” with Remainers.  He has now rejected the Erasmus+ and Child Refugee amendments.  Accepting either or both of those would have been such a positive gesture of friendship &amp; collaboration.  He chose to crush them instead.
-
-January 31st 2020 
-> Tweet containing most freq word:
-NEGATIVE
-* Early in his Administration, President @anonymous committed to bringing the full force and weight of the U.S. Government to tackle this horrific problem.   Since then, he has signed 9 pieces of legislation into law that directly address human trafficking. http://url_removed
-* Breaking News: The Trump administration is virtually blocking immigration from Nigeria, Africa's most populous country, and Myanmar, where refugees are fleeing genocide. 4 other countries have also been added in an extension of the stringent travel ban. http://url_removed
-* Human trafficking is believed to be one of the largest criminal activities in the world—with an estimated 24.9 MILLION people trapped in forced labor, domestic servitude, or commercial sex trafficking. http://url_removed
-POSITIVE
-* Happy Brexit Day!
-* RT @anonymous Read this. And next time you see a migrant worker you may think differently. Fantastic article
-* President @anonymous just signed an Executive Order on Combating Human Trafficking &amp; Online Child Exploitation.   We will not rest until we have stopped every last human trafficker and liberated every last survivor. http://url_removed
-
-February 3rd-8th 2020 
-> Tweet containing most freq word:
-NEGATIVE
-* dated 2020-02-08: RT @anonymous WATCH: @anonymous tells @anonymous it was a 'mistake' for Leave to claim there'd be £350M a week for NHS http://url_removed 
-* dated 2020-02-07: Fact:  An illegal immigrant was indicted for the brutal murder of 12 elderly women across Dallas  He's now being accused of at least 10 more killings  This is one of the most brutal serial killings in TX history  I wonder why the media won't cover it?  RT so they can't ignore!
-* dated 2020-02-03: If after watching this half-time show, you’re against immigration and think Latinos are invaders......go to boring, rhythm-less hell. Really.  Hispanics are Americans and Make America Great.  Deal with it! 🔥 - https://eu.azcentral.com/story/opinion/op-ed/elviadiaz/2020/02/03/shakira-and-jlo-brought-latino-pride/4647547002/
-* dated 2020-02-05: The shooter at my high school was not an illegal immigrant, he was a 19 year old that was able to go out and LEGALLY buy a weapon of mass destruction.   #SOTU
-* dated 2020-02-05: President Donald Trump has been acquitted. The American people have won against the swamp yet again.   The whole impeachment process was grubby, nasty and bad for the USA.
-* dated 2020-02-07: No, Mr. President, you &amp; your family did not go through hell. You didn’t even go through a real trial. Hell is what you put immigrant families through when you snatched them apart and put children in cages.
-* dated 2020-02-08: My heart breaks for their father, who brought his boys to the US from the Soviet Union because he didn’t want them to live under an authoritarian regime that punished decency in public life. As a fellow Soviet Jewish refugee, I find this particularly chilling. http://url_removed
-POSITIVE
-* Brexit Party leader @anonymous hasn’t written a manifesto so we’ve done it for him, based on statements by him and his candidates. Billboards going up across the country this week. See more at http://url_removed(location: Radford Rd, Coventry) http://url_removed
-* Guys really appreciate it if you rt this. Johnson is going ahead to deport around 50 brits to Jamaica on 11th Feb. Many of these people have lived in UK since childhood. We can't let him do this without making a stand or we are slipping into a nightmare  http://url_removed
-* Just had a great meeting with President Trump in the Oval Office.   Good to see the bust of Winston Churchill, there should be great things ahead for our two countries.
-
-# Negative
-exp <- wc_df %>% dplyr::filter(between(
-  date, as.Date("2020-02-03"),
-  as.Date("2020-02-08"))) %>%
-  dplyr::filter(over_tweet_sent < -.05) %>%
-  dplyr::filter(retweet_count > 199) %>% 
-  .[with(., order(retweet_count, over_tweet_sent)),] %>%
- dplyr::filter(retweet_count == 6666)
-
-table(exp$retweet_count)
-
-# Positive
-exp <- wc_df %>% dplyr::filter(between(
-  date, as.Date("2020-02-03"),
-  as.Date("2020-02-08"))) %>%
-  dplyr::filter(over_tweet_sent > .05) %>%
-  dplyr::filter(retweet_count > 199) %>% 
-  .[with(., order(retweet_count, over_tweet_sent)),] %>%
- dplyr::filter(retweet_count == 8500)
-
-table(exp$retweet_count)
-
+Fig.3a: Jan 15-16th, 2020
 ```{r, fig.width=14}
 wc_df1 <- wc_df %>% dplyr::filter(between(
   date, as.Date("2020-01-15"),
@@ -548,7 +349,7 @@ dev.off()
 ```
 
 
-Jan 22-23rd 2020 
+Fig.3b: Jan 22-23rd 2020 
 
 ```{r, fig.width=14}
 wc_df1 <- wc_df %>% dplyr::filter(between(
@@ -585,7 +386,7 @@ dev.off()
 
 ```
 
-February 3rd-8th 2020 
+Fig.3c: February 3rd-8th 2020 
 
 ```{r, fig.width=14}
 wc_df1 <- wc_df %>% dplyr::filter(between(
@@ -619,7 +420,6 @@ wordcloud(wc_df2$word, wc_df2$n,
           random.color = FALSE, 
           colors=c("lightsteelblue1", "lightsteelblue2","#2c7bb6","darkblue"))
 dev.off()
-
 ```
 
 
