@@ -17,7 +17,7 @@ This repository contains the relevant data and code to replicate the analysis an
 
 To illustrate how immigration sentiment can be measured and monitored using Twitter data and natural language processing
 
-![UK]()
+![UK](/outputs/oss_points_uk.png)
 
 ## Citation
 
