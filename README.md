@@ -31,7 +31,7 @@ If you use the code and/or data in this repository, we would appreciate if you c
           Graells-Garrido, Eduardo and
           Rango, Marzia and
           Sievers, Niklas},
-  journal={arXiv preprint arXiv:1911.03795},
+  journal={10.17605/OSF.IO/X47QA},
   year={2021},
 }
 ```
