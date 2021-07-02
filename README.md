@@ -24,17 +24,22 @@ To illustrate how immigration sentiment can be measured and monitored using Twit
 If you use the code and/or data in this repository, we would appreciate if you could cite the pre-print paper as:
 
 ```
-@article{rowe_et_al2021iom,
-  title={Using Twitter Data to Monitor Immigration Sentiment},
+@incollection{rowe2021chp,
+  title={Using Twitter Data toMonitor Immigration Sentiment},
   author={Rowe, Francisco and 
           Mahony, Michael and 
           Graells-Garrido, Eduardo and
           Rango, Marzia and
           Sievers, Niklas},
-  journal={10.17605/OSF.IO/X47QA},
+  booktitle={Practitioners’ Guidebook. International Organization for Migration},
+  pages={xx-xx},
   year={2021},
+  url={10.17605/OSF.IO/X47QA},
+  publisher={United Nations}
 }
 ```
+
+
 
 ## Data
 
