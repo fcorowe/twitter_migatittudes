@@ -11,7 +11,7 @@
 
 ## Description
 
-This repository contains the relevant data and code to replicate the analysis and results reported in the paper "Using Twitter Data to Monitor Immigration Sentiment", forthcoming in A practitioner Guide Book to be published by *International Organization for Migration*.
+This repository contains the relevant data and code to replicate the analysis and results reported in the chapter "Using Twitter Data to Monitor Immigration Sentiment", Harnessing Data Innovation for Migration Policy: A Handbook for Practitioners published by International Organization for Migration.*.
 
 ## Paper aim
 
@@ -24,22 +24,21 @@ To illustrate how immigration sentiment can be measured and monitored using Twit
 If you use the code and/or data in this repository, we would appreciate if you could cite the pre-print paper as:
 
 ```
-@incollection{rowe2021chp,
+@incollection{rowe2023chp,
   title={Using Twitter Data toMonitor Immigration Sentiment},
   author={Rowe, Francisco and 
           Mahony, Michael and 
           Graells-Garrido, Eduardo and
           Rango, Marzia and
           Sievers, Niklas},
-  booktitle={Practitioners’ Guidebook. International Organization for Migration},
-  pages={xx-xx},
-  year={2021},
-  url={10.17605/OSF.IO/X47QA},
-  publisher={United Nations}
+  booktitle={Harnessing Data Innovation for Migration Policy: A Handbook for Practitioners},
+  pages={104-119},
+  year={2023},
+  url={https://publications.iom.int/books/harnessing-data-innovation-migration-policy-handbook-practitioners},
+  publisher={International Organization for Migration. United Nations},
+  city={Geneva}
 }
 ```
-
-
 
 ## Data
 
