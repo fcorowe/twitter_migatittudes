@@ -25,7 +25,7 @@ If you use the code and/or data in this repository, we would appreciate if you c
 
 ```
 @incollection{rowe2023chp,
-  title={Using Twitter Data toMonitor Immigration Sentiment},
+  title={Using Twitter Data to Monitor Immigration Sentiment},
   author={Rowe, Francisco and 
           Mahony, Michael and 
           Graells-Garrido, Eduardo and
